@@ -12,7 +12,7 @@ del /s *.map
 del /s *.lst
 ::@echo on
 echo compiling start-up code
-arm-none-eabi-as -g -mcpu=cortex-m4 -o .\objs\a_Startup.o .\sources\basic\SimpleStartSTM32F4_01.asm
+arm-none-eabi-as -g -mcpu=cortex-m4 -o .\objs\a_Startup.o .\sources\basic\SimpleStartSTM32F4_01_audio.asm
 
 echo compiling main.c
 arm-none-eabi-gcc ^

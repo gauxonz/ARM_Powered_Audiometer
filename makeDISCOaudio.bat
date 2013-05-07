@@ -1,35 +1,147 @@
-REM  makeDISCOaudio.bat wmh 2013-04-28 : adding '-mfloat-abi=hard -mfpu=fpv4-sp-d16' compiler switches did not fix problem of bad 'blx' which keil saw as DCD
-REM adding -L"C:\yagarto_gcc472\lib\gcc\arm-none-eabi\4.7.2\thumb\v7m" did fix the problem of blx/DCD but then we got NOCP (no coprocessor) exception
-REM removing '-mfloat-abi=hard -mfpu=fpv4-sp-d16' but keeping -L"C:\yagarto_gcc472\lib\gcc\arm-none-eabi\4.7.2\thumb\v7m" got working program with software fp
-REM added 'enable_FPU' to SimpleStartSTM32F4_02.asm, putting '-mfloat-abi=hard -mfpu=fpv4-sp-d16' back in compile commands and changing optimization to -O1
-REM gives a nice triangle wave that Audacity says has the first fundamental at 221 Hz (221 Hz very close to A below middle C)
-
+@echo off
+mode con cols=999 lines=99
 set path=.\;C:\yagarto\bin;
 
-REM assemble with '-g' omitted where we want to hide things in the AXF
- arm-none-eabi-as -g -mcpu=cortex-m4 -o aStartup.o SimpleStartSTM32F4_02.asm
+REM deleting
+rd /s /q "./objs" & md "objs"
+del /s *.elf
+del /s *.hex
+del /s *.AXF
+del /s *.dep
+del /s *.map
+del /s *.lst
+::@echo on
+echo compiling start-up code
+arm-none-eabi-as -g -mcpu=cortex-m4 -o .\objs\a_Startup.o .\sources\basic\SimpleStartSTM32F4_01_disco.asm
 
-REM compiling C code
-SET GCC_COMPILE=-c -mthumb -O1 -g -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -save-temps
-arm-none-eabi-gcc -I./ -I./STM32F4xx_StdPeriph_Driver\inc %GCC_COMPILE% DISCOaudio_01.c -o cMain.o
-REM arm-none-eabi-gcc -I./  %GCC_COMPILE% codec.c -o cCodec.o
-REM arm-none-eabi-gcc -I./  %GCC_COMPILE% stm32f4xx_gpio.c -o cGPIO.o
-REM arm-none-eabi-gcc -I./  %GCC_COMPILE% stm32f4xx_i2c.c -o cI2C.o
-REM arm-none-eabi-gcc -I./  %GCC_COMPILE% stm32f4xx_spi.c -o cSPI.o
-REM arm-none-eabi-gcc -I./  %GCC_COMPILE% stm32f4xx_rcc.c -o cRCC.o
 
-REM linking 
- SET GCC_LINK=-nostartfiles -g -Wl,--gc-sections -Wl,-Map,DISCOaudio.map -Wl,-T -L"C:\yagarto_gcc472\lib\gcc\arm-none-eabi\4.7.2\thumb\v7m"  linkSTM32F4_01.ld 
- arm-none-eabi-gcc %GCC_LINK% -oDISCOaudio.elf aStartup.o cMain.o -lgcc
+SET GCC_COMPILE=-c -mthumb -O1 -g -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
 
-REM hex file
-arm-none-eabi-objcopy -O ihex DISCOaudio.elf DISCOaudio.hex
+echo compiling DISCOaudio_01.c
+arm-none-eabi-gcc %GCC_COMPILE% ^
+-I .\sources\DISOCO_DemoCode ^
+-I .\sources\ST_Libraries\CMSIS\ST\STM32F4xx\Include ^
+-I .\sources\ST_Libraries\CMSIS\Include ^
+-I .\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\inc ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Core/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Class/MSC/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_OTG_Driver/inc/ ^
+-I .\sources\ST_Utilities\STM32F4-Discovery ^
+-I .\sources\ST_Utilities\Third_Party\fat_fs\inc ^
+-D__MICROLIB ^
+-DUSE_STDPERIPH_DRIVER ^
+-DSTM32F4XX ^
+./sources/DISOCO_DemoCode/DISCOaudio_01.c ^
+-o ./objs/cMain.o
 
-REM AXF file
-copy DISCOaudio.elf DISCOaudio.AXF
+echo compiling codec.c
+arm-none-eabi-gcc %GCC_COMPILE% ^
+-I .\sources\DISOCO_DemoCode ^
+-I .\sources\ST_Libraries\CMSIS\ST\STM32F4xx\Include ^
+-I .\sources\ST_Libraries\CMSIS\Include ^
+-I .\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\inc ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Core/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Class/MSC/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_OTG_Driver/inc/ ^
+-I .\sources\ST_Utilities\STM32F4-Discovery ^
+-I .\sources\ST_Utilities\Third_Party\fat_fs\inc ^
+-D__MICROLIB ^
+-DUSE_STDPERIPH_DRIVER ^
+-DSTM32F4XX ^
+./sources/DISOCO_DemoCode/codec.c ^
+-o ./objs/cCodec.o
 
-REM list file
-arm-none-eabi-objdump -S  DISCOaudio.axf >DISCOaudio.lst
+echo compiling stm32f4xx_gpio.c
+arm-none-eabi-gcc %GCC_COMPILE% ^
+-I .\sources\DISOCO_DemoCode ^
+-I .\sources\ST_Libraries\CMSIS\ST\STM32F4xx\Include ^
+-I .\sources\ST_Libraries\CMSIS\Include ^
+-I .\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\inc ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Core/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Class/MSC/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_OTG_Driver/inc/ ^
+-I .\sources\ST_Utilities\STM32F4-Discovery ^
+-I .\sources\ST_Utilities\Third_Party\fat_fs\inc ^
+-D__MICROLIB ^
+-DUSE_STDPERIPH_DRIVER ^
+-DSTM32F4XX ^
+.\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_gpio.c ^
+-o .\objs\c_stm32f4xx_gpio.o
 
-REM check results
+echo compiling stm32f4xx_i2c.c
+arm-none-eabi-gcc %GCC_COMPILE% ^
+-I .\sources\DISOCO_DemoCode ^
+-I .\sources\ST_Libraries\CMSIS\ST\STM32F4xx\Include ^
+-I .\sources\ST_Libraries\CMSIS\Include ^
+-I .\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\inc ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Core/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Class/MSC/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_OTG_Driver/inc/ ^
+-I .\sources\ST_Utilities\STM32F4-Discovery ^
+-I .\sources\ST_Utilities\Third_Party\fat_fs\inc ^
+-D__MICROLIB ^
+-DUSE_STDPERIPH_DRIVER ^
+-DSTM32F4XX ^
+.\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_i2c.c ^
+-o .\objs\c_stm32f4xx_i2c.o
+
+echo compiling stm32f4xx_spi.c
+arm-none-eabi-gcc %GCC_COMPILE% ^
+-I .\sources\DISOCO_DemoCode ^
+-I .\sources\ST_Libraries\CMSIS\ST\STM32F4xx\Include ^
+-I .\sources\ST_Libraries\CMSIS\Include ^
+-I .\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\inc ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Core/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Class/MSC/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_OTG_Driver/inc/ ^
+-I .\sources\ST_Utilities\STM32F4-Discovery ^
+-I .\sources\ST_Utilities\Third_Party\fat_fs\inc ^
+-D__MICROLIB ^
+-DUSE_STDPERIPH_DRIVER ^
+-DSTM32F4XX ^
+.\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_spi.c ^
+-o .\objs\c_stm32f4xx_spi.o
+
+echo compiling stm32f4xx_rcc.c
+arm-none-eabi-gcc %GCC_COMPILE% ^
+-I .\sources\DISOCO_DemoCode ^
+-I .\sources\ST_Libraries\CMSIS\ST\STM32F4xx\Include ^
+-I .\sources\ST_Libraries\CMSIS\Include ^
+-I .\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\inc ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Core/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_HOST_Library/Class/MSC/inc/ ^
+-I .\sources\ST_Libraries/STM32_USB_OTG_Driver/inc/ ^
+-I .\sources\ST_Utilities\STM32F4-Discovery ^
+-I .\sources\ST_Utilities\Third_Party\fat_fs\inc ^
+-D__MICROLIB ^
+-DUSE_STDPERIPH_DRIVER ^
+-DSTM32F4XX ^
+.\sources\ST_Libraries\STM32F4xx_StdPeriph_Driver\src\stm32f4xx_rcc.c ^
+-o .\objs\c_stm32f4xx_rcc.o
+
+echo linking 
+
+ SET GCC_LINK=-nostartfiles -g -Wl,--gc-sections -Wl,-Map,Blinky.map -Wl,-T -L"C:\yagarto_gcc472\lib\gcc\arm-none-eabi\4.7.2\thumb\v7m"  .\linkers\linkBlinkySTM32F4_01.ld
+ 
+ arm-none-eabi-gcc %GCC_LINK% ^
+ -o Blinky.elf ^
+ .\objs\a_Startup.o ^
+ ./objs/cMain.o ^
+ ./objs/cCodec.o ^
+ .\objs\c_stm32f4xx_gpio.o ^
+ .\objs\c_stm32f4xx_i2c.o ^
+ .\objs\c_stm32f4xx_spi.o ^
+ .\objs\c_stm32f4xx_rcc.o ^
+ -lgcc
+
+echo hex file
+arm-none-eabi-objcopy -O ihex Blinky.elf Blinky.hex
+
+echo AXF file
+copy Blinky.elf Blinky.AXF
+
+echo list file
+arm-none-eabi-objdump -S  Blinky.axf >Blinky.lst
+
+echo check results
 pause
