@@ -1,0 +1,4 @@
+Dependencies for Project 'Blinky', Target 'Target 1': (DO NOT MODIFY !)
+F (.\STM32F4main04.c)(0x00000000)(-c --cpu Cortex-M4.fp -g -O0 --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\ST\STM32F4xx -o "stm32f4main04.o" --omf_browse "stm32f4main04.crf" --depend "stm32f4main04.d")
+F (.\homework_todo.txt)(0x00000000)()
+F (.\Blinky.AXF)(0x5188B20C)(--cpu Cortex-M4.fp -g --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\ST\STM32F4xx --list "Blinky.lst" --xref -o "Blinky.o" --depend "Blinky.d")
