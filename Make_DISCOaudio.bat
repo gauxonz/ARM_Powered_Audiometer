@@ -121,7 +121,7 @@ arm-none-eabi-gcc %GCC_COMPILE% ^
 
 echo linking 
 
- SET GCC_LINK=-nostartfiles -g -Wl,--gc-sections -Wl,-Map,Blinky.map -Wl,-T -L"C:\yagarto_gcc472\lib\gcc\arm-none-eabi\4.7.2\thumb\v7m"  .\linkers\linkBlinkySTM32F4_01.ld
+ SET GCC_LINK=-nostartfiles -g -Wl,--gc-sections -Wl,-Map,.\objs\Blinky.map -Wl,-T -L"C:\yagarto\lib\gcc\arm-none-eabi\4.6.2\thumb\v7m"  .\linkers\linkBlinkySTM32F4_01.ld
  
  arm-none-eabi-gcc %GCC_LINK% ^
  -o Blinky.elf ^

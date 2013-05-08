@@ -17,7 +17,7 @@
 
  //!!added stuff to get it to compile
 #include <stdint.h>					//various versions of this in yagarto -- gives unint32_t and other definitions	
-#include "..\basic\STM32F4xx.h"
+#include "STM32F4xx.h"
 #include "ST_LED.h"
 
 const unsigned long led_mask[] = {1UL << 12, 1UL << 13, 1UL << 14, 1UL << 15};

@@ -318,3 +318,4 @@ ST_P24_GetSwitch_12:
 	mov r0,r0, lsr #6									@; return b6
 	DirectWrite_Data MY_GPIOC_BSRR 0x0800 r4 r5	 @; c11 = 1
 	bx lr
+	
